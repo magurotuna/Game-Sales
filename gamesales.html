@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Game Sales</title>
+    <script type="text/javascript" src="./lib/d3.js"></script>
+    <style type="text/css">
+    span.borderline {
+      position:absolute;
+      left:1067px;
+      width:3px;
+      /*height:960px;*/
+      height:100%;
+      border-top:none;
+      border-left:none;
+      border-bottom:none;
+      border-right:dashed;
+    }
+    .piecharthistory{
+      position: absolute;
+      left: 1200px;
+      font-family:"游ゴシック", "Yu Gothic", sans-serif;
+    }
+    .clickable{
+      cursor:pointer;
+    }
+    #clickable{
+      cursor:pointer;
+    }
+    #clickable text:hover{
+      fill: #ff0000;
+      font-size: 200%;
+    }
+    text{
+      font-family: "Hiragino Kaku Gothic ProN","游ゴシック";
+    }
+    text.linked{
+      fill: #0044CC;
+      text-decoration: underline;
+    }
+    text.linked:visited { fill: #000080; }
+    text.linked:hover{
+      fill: #ff0000;
+    }
+    text.linked:active { fill: #ff8000; }
+    text.linked2{
+
+      text-decoration: underline;
+    }
+    text.linked2:visited { fill: #000080; }
+    text.linked2:hover{
+      fill: #ff0000;
+    }
+    text.linked2:active { fill: #ff8000; }
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+      width: 60px;
+      height: 30px;
+      padding: 2px;
+      font: 16px sans-serif;
+      color: white;
+      background: black;
+      border: 1px;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    div.tooltip-killersoft {
+    	position: absolute;
+      font: 16px sans-serif;
+    	background: #dcddde;
+    	border: 2px solid #8398a6;
+      padding: 5px;
+      border-radius:5px;
+      text-align: center;
+    }
+    .streamgraph {
+      clip-path: url(#clip);
+      cursor: move;
+      pointer-events: all;
+    }
+    .text {
+      clip-path: url(#clip);
+    }
+    .killer-circle {
+      clip-path: url(#clip);
+    }
+    button.resetButton {
+    position:absolute;
+    left:900px;
+    top:35px;
+    border-radius:8px;
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	  -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	  box-shadow:inset 0px 1px 0px 0px #ffffff;
+  	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
+  	background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
+  	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
+  	background-color:#ededed;
+  	-webkit-border-top-left-radius:16px;
+  	-moz-border-radius-topleft:16px;
+  	border-top-left-radius:16px;
+  	-webkit-border-top-right-radius:16px;
+  	-moz-border-radius-topright:16px;
+  	border-top-right-radius:16px;
+  	-webkit-border-bottom-right-radius:16px;
+  	-moz-border-radius-bottomright:16px;
+  	border-bottom-right-radius:16px;
+  	-webkit-border-bottom-left-radius:16px;
+  	-moz-border-radius-bottomleft:16px;
+  	border-bottom-left-radius:16px;
+    text-indent:0;
+  	border:1px solid #918b91;
+  	display:inline-block;
+  	color:#454145;
+  	font-family:Arial;
+  	font-size:14px;
+  	font-weight:bold;
+  	font-style:normal;
+    height:36px;
+  	line-height:36px;
+    width:130px;
+  	text-decoration:none;
+  	text-align:center;
+  	text-shadow:1px 1px 0px #ffffff;
+  }.resetButton:hover {
+  	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
+  	background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
+  	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
+  	background-color:#dfdfdf;
+  }
+  div.displayReview {
+    position: absolute;
+    left:180px;
+    top:630px;
+    width:800px;
+    height:310px;
+    font-family:sans-serif;
+    font-size:15px;
+    border-style:dotted;
+    border-color:grey;
+  }
+  div.gametitle {
+    position:absolute;
+    left:10px;
+    font-size:30px;
+    font-family:"游ゴシック", "Yu Gothic", sans-serif;
+    font-weight:bold;
+    text-shadow: 0 1px 0 #ccc,
+             0 2px 0 #c9c9c9,
+             0 3px 0 #bbb,
+             0 4px 0 #b9b9b9,
+             0 5px 0 #aaa,
+             0 6px 1px rgba(0,0,0,.1),
+             0 0 5px rgba(0,0,0,.1),
+             0 1px 3px rgba(0,0,0,.3),
+             0 3px 5px rgba(0,0,0,.2),
+             0 5px 10px rgba(0,0,0,.25),
+             0 10px 10px rgba(0,0,0,.2),
+             0 20px 20px rgba(0,0,0,.15);
+  }
+  div.gamecaption {
+    position: absolute;
+    width:570px;
+    left:220px;
+    top:60px;
+    font-size:14px;
+    font-family:"游ゴシック", "Yu Gothic", sans-serif;
+  }
+  div.gameimage {
+    position: absolute;
+    width:200px;
+    height:200px;
+    left:10px;
+    top:60px;
+  }
+  div.gamereviewcount {
+    position: absolute;
+    font-size:26px;
+    font-family:"游ゴシック", "Yu Gothic", sans-serif;
+    font-weight:bold;
+    top:260px;
+    left:130px;
+  }
+  div.gamereviewaverage {
+    position: absolute;
+    font-size:36px;
+    font-family:"游ゴシック", "Yu Gothic", sans-serif;
+    font-weight:bold;
+    top:250px;
+    left:430px;
+    background: linear-gradient(transparent 60%, #ff99ff 60%);
+  }
+  div.poweredtext {
+    position:absolute;
+    font-size:10px;
+    font-family:"游ゴシック", "Yu Gothic", sans-serif;
+    top:290px;
+    left:660px;
+  }
+  div.notfoundimage {
+    position:absolute;
+    left:270px;
+    top:20px;
+  }
+  form.radioForm {
+    position:absolute;
+    left:750px;
+    top:25px;
+  }
+  select.selectForm {
+    position:absolute;
+    left:570px;
+    top:20px;
+    width:10em;
+    height:2.5em;
+  }
+  span.maintitle {
+    font-family: "Vidaloka", serif;
+    /*text-align:center;*/
+    position:absolute;
+    left:10px;
+    top:10px;
+    font-weight:normal;
+    color:#444;
+    display:block;
+    font-size:44px;
+    line-height:44px;
+    letter-spacing:-4px;
+    text-shadow:1px 1px 3px #fff,3px 3px 6px #888;
+  }
+    </style>
+  </head>
+  <body>
+    <span class="maintitle">VideoGame Sales Visualization</span>
+    <span class="borderline"></span>
+    <table>
+    <tr>
+    <td width="200" id="option">
+      <form class="radioForm" name="form1" id="form1" onchange="showGraph()" width="200">
+        <label><input type="radio" name="sort" value="ハード" checked="true">ハード</label><br>
+        <!--<label><input type="radio" name="sort" value="ジャンル">ジャンル</label><br>-->
+        <label><input type="radio" name="sort" value="メーカー">メーカー</label><br><br>
+        <select class="selectForm" name="year" id="year">  </select>
+      </form>
+    </td>
+    <td width="2000" id="graph">
+      <button class="resetButton" onclick="showGraph()">Reset Stream</button>
+      <div class="displayReview" id="review">
+        ストリームグラフ中にある"◯"をクリック，または円グラフの下に表示されるタイトル名をマウスオーバーするとここに詳細が表示されます．<br>
+        ※古いソフトは楽天ブックスにデータがないため取得できません
+      </div>
+    </td>
+    </tr>
+    </table>
+    <script type="text/javascript">
+    var dataset;//csvのデータを入れる
+    var tempsort;//ストリームグラフの再描画判別用
+
+    (function() {//ドロップダウンリスト
+  'use strict';
+    // var opt = "<option value='0'>全ての年</option>";
+    var opt = "<option value='0'>円グラフ</option>";
+    for (var i = 1996; i <= 2016 ; i++) {
+        opt += "<option value='" + i + "'>" + i + "</option>";
+    }
+    return document.getElementById('year').innerHTML = opt;
+  })();
+
+
+var svg;
+var KeyToColor = {};
+var HardToHard = {"GB":"GB",
+                  "PS":"PS1",
+                  "SFC":"SFC",
+                  "N64":"Nintendo 64",
+                  "SS":"SS",
+                  "DC":"DC",
+                  "WS":"WS",
+                  "PS2":"PS2",
+                  "GC":"GC",
+                  "GBA":"GBA",
+                  "XB":"Xbox",
+                  "DS":"Nintendo DS",
+                  "PSP":"PSP",
+                  "Wii":"Wii",
+                  "PS3":"PS3",
+                  "XB360":"Xbox360",
+                  "3DS":"Nintendo 3DS",
+                  "WiiU":"Wii U",
+                  "Vita":"PS Vita",
+                  "PS4":"PS4"
+                  }; //csvデータのhardから楽天リクエスト用のhardに変換
+var hardOfSelectedSoft;
+var selectedTitle;
+var filename = "gamedata.csv";
+
+//楽天ブックスからJSONPデータを取得した際の処理内容
+function callbackJSONP(rakutenData) {
+  console.log(rakutenData);
+  if(Object.keys(rakutenData).length === 0) { //取得できなかった場合
+    d3.select(".displayReview").html("『" + selectedTitle + "』...... No Data Found in 楽天ブックス");
+    d3.select(".displayReview")
+          .append("div")
+          .attr("class", "notfoundimage")
+          .html("<img src=\"magao.gif\">");
+    return;
+  }
+  var index = -1;
+  var tmp_length = rakutenData.Items.length;
+  for(var i = 0; i < tmp_length; i++) { //検索結果からハードウェアが一致するものを抽出
+    if(rakutenData.Items[i].Item.hardware == hardOfSelectedSoft) {
+      index = i;
+      break;
+    }
+  }
+  if(index < 0) { //ハードウェアが一致する検索結果がなかった場合
+    d3.select(".displayReview").html("『" + selectedTitle + "』...... No Data Found in 楽天ブックス");
+    d3.select(".displayReview")
+          .append("div")
+          .attr("class", "notfoundimage")
+          .html("<img src=\"magao.gif\">");
+    return;
+  }
+
+  var title = rakutenData.Items[index].Item.title;
+  if(title.indexOf("アルティメット ヒッツ") != -1 || title.indexOf("アルティメットヒッツ ") != -1) {
+    title = title.slice(11);
+  }
+  else if(title.indexOf("ULTIMATE HITS ") != -1) {
+    title = title.slice(14);
+  }
+  /*if(title.length>30){//長すぎるのは切る
+    title=title.substring(0,29) + "......";
+  }*/
+  d3.select(".displayReview")
+        .html("")
+        .append("div")
+        .attr("class", "gametitle")
+        .append("a")
+        .attr("href",rakutenData.Items[index].Item.itemUrl)
+        .style("text-decoration", "none")
+        .attr("target","_blank")
+        .html(title);
+  if(title.length > 26) {
+    var fontsize = 780 / title.length; // 780はdisplayReviewの横幅からマージンを引いた値
+    d3.select(".gametitle")
+      .style("font-size", fontsize + "px");
+  }
+  var caption = rakutenData.Items[index].Item.itemCaption;
+  if(caption.length > 300) caption = caption.slice(0, 300) + "......";
+  d3.select(".displayReview")
+        .append("div")
+        .attr("class", "gamecaption")
+        .html(caption);
+  var imageURL = rakutenData.Items[index].Item.largeImageUrl;
+  d3.select(".displayReview")
+        .append("div")
+        .attr("class", "gameimage")
+        .html("<img src=\"" + imageURL + "\">");
+  var reviewCount = rakutenData.Items[index].Item.reviewCount;
+  d3.select(".displayReview")
+        .append("div")
+        .attr("class", "gamereviewcount")
+        .html(reviewCount + "人からの平均評価");
+  var reviewAverage = rakutenData.Items[index].Item.reviewAverage;
+  d3.select(".displayReview")
+        .append("div")
+        .attr("class", "gamereviewaverage")
+        .html(reviewAverage + " / 5.00")
+  d3.select(".displayReview")
+        .append("div")
+        .attr("class", "poweredtext")
+        .html("powered by 楽天ブックス")
+
+}
+
+// リクエストURL作成
+function createURL(selectedData) {
+  // NGkeyword : 攻略本 液晶保護 シリコン トランプ メモリースティック バスターズTで役立つ
+  var commonURL = "https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522?callback=callbackJSONP&format=json&booksGenreId=006&field=1&outOfStockFlag=1&NGKeyword=%e6%94%bb%e7%95%a5%e6%9c%ac%20%e6%b6%b2%e6%99%b6%e4%bf%9d%e8%ad%b7%20%e3%82%b7%e3%83%aa%e3%82%b3%e3%83%b3%20%e3%83%88%e3%83%a9%e3%83%b3%e3%83%97%20%e3%83%a1%e3%83%a2%e3%83%aa%e3%83%bc%e3%82%b9%e3%83%86%e3%82%a3%e3%83%83%e3%82%af%20%e3%83%90%e3%82%b9%e3%82%bf%e3%83%bc%e3%82%baT%e3%81%a7%e5%bd%b9%e7%ab%8b%e3%81%a4%20NFC%e3%83%aa%e3%83%bc%e3%83%80%e3%83%bc&sort=reviewCount&elements=title%2CitemUrl%2CitemCaption%2ClargeImageUrl%2CreviewCount%2CreviewAverage%2Chardware&applicationId=1093631300678265149";
+  var arrayTitle = selectedData.title.split("／");
+  selectedTitle = arrayTitle[0];
+  var encodedKeyword = encodeURIComponent(arrayTitle[0]);
+
+  return commonURL + "&keyword=" + encodedKeyword;
+}
+
+// 楽天APIにリクエストを送信
+function callJSONP(url) {
+var target = document.createElement('script');
+target.charset = 'utf-8';
+target.src = url;
+document.body.appendChild(target);
+}
+
+d3.csv(filename, function(error, data){
+
+  if(error) { console.log("error");
+  } else {
+
+    console.log(data);
+    dataset=data;
+
+  //メーカー名・ハード名と色を1対1に対応させるための配列を作成
+    createKeyToColor();
+
+  //グラフを描画
+    showGraph(dataset);
+  }
+});
+
+
+
+function showGraph() {
+
+  console.log(dataset);
+  if(document.form1.year.value!=0) {
+    showStreamGraph(dataset);
+    piechart(dataset);
+
+  }
+  else showStreamGraph(dataset);
+
+}
+
+function showStreamGraph(data) {
+  d3.select(".underpiechart").selectAll(".piecharthistory").style("visibility","hidden");//円グラフ下の年表を隠す
+  console.log(data);
+  //以前のグラフ消去
+  d3.select("#graph").selectAll("svg").remove();
+  d3.selectAll(".tooltip").remove(); //以前のtooltip消去
+  d3.selectAll(".tooltip-killersoft").remove(); //キラーソフトtooltip消去
+   d3.select("#graph")//円グラフを横に表示するため
+              .append("svg")
+              .attr("width",2500)
+              .attr("height",1);
+  // console.log(data);
+  var svg;
+  var width = 950;
+  var height = 500;
+  // var width = 600;//ウィンドウズ用にサイズ調整したい
+  // var height = 300;
+  var x_margin = 80;
+  var y_margin = 80;
+  // var graph_base = 500;
+  var bar_margin = 10;
+  var x_offset = 70;
+  var y_offset = 40;
+  var n_hards; //ハードの数
+  var n_makers; //メーカーの数
+  var n_genres; //ジャンルの数
+  var n_killersofts; //キラーソフトの数
+  var n_year = 21; //年数 1996〜2016年
+  var makers = [];
+  var hards = [];
+  var genres = [];
+  var allsales_per_year = {};
+  var killersoftArray = []; // ある年にkillerBaseLine本以上売れたソフト
+  var killerBaseLine = 2500000;
+
+  var selectedyear = document.form1.year.value;
+  var selectedsort = document.form1.sort.value;
+
+  //if(selectedyear != 0) return;
+
+  // allsales_per_year,makersなどを計算
+  for(var year = 1996; year <= 2016; year++) {
+      allsales_per_year[year] = 0;
+  }
+  data.forEach( function(d, i) {
+    allsales_per_year[d.year] += Number(d.sales);
+    if(makers.indexOf(d.maker) < 0) makers.push(d.maker);
+    if(hards.indexOf(d.hard) < 0) hards.push(d.hard);
+    if(d.sales >= killerBaseLine) killersoftArray.push(d);
+  });
+  n_makers = makers.length;
+  n_hards = hards.length;
+  n_genres = genres.length;
+  n_killersofts = killersoftArray.length;
+  console.log(hards);
+
+// [{year:year1, maker1:売上, maker2:売上, ..., hard1:売上, hard2:売上,...},
+//  {year:year2, maker1:売上, maker2:売上, ..., hard1:売上, hard2:売上,...}]
+// の形の配列を作る
+  var SalesPerYear = [];
+  for(var i = 1996; i <= 2016; i++) {
+    SalesPerYear.push({ year: i });
+    for(var k in hards) {
+      SalesPerYear[i-1996][hards[k]] = 0;
+    }
+    for(var j in makers) {
+      SalesPerYear[i-1996][makers[j]] = 0;
+    }
+  }
+  data.forEach( function(d, i) {
+    SalesPerYear[Number(d.year)-1996][d.maker] += Number(d.sales);
+    SalesPerYear[Number(d.year)-1996][d.hard] += Number(d.sales);
+  });
+
+// グラフスケール設定
+  var xScale = d3.scaleLinear()
+                 .domain([1996, 2016])
+                 .range([0, width]);
+  var xScale0 = d3.scaleLinear()
+                 .domain([1996, 2016])
+                 .range([0, width]);
+  var yScale = d3.scaleLinear()
+                 .domain([0, maxorig(allsales_per_year)])
+                 .range([height, 0]);
+  var yScale0 = d3.scaleLinear()
+                  .domain([0, maxorig(allsales_per_year)])
+                  .range([height, 0]);
+// マウス位置座標から年数に変換するためのスケール
+  var yearScale = d3.scaleLinear()
+                    .domain([0, width])
+                    .range([1996, 2016]);
+
+  var HardStack = d3.stack()
+                .keys(hards)
+                .order(d3.stackOrderNone)
+                .offset(d3.stackOffsetNone);
+  var HardSeries = HardStack(SalesPerYear);
+  var MakerStack = d3.stack()
+                .keys(makers)
+                .order(d3.stackOrderNone)
+                .offset(d3.stackOffsetNone);
+  var MakerSeries = MakerStack(SalesPerYear);
+
+  var area = d3.area()
+              .x(function (d, i) { return xScale(i+1996); })
+              .y0(function (d, i) { return yScale(d[0]); })
+              .y1(function (d, i) { return yScale(d[1]); })
+              .curve(d3.curveBasis);
+
+  function drawStream(seriesData) {
+    svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width + 2*x_offset)
+            .attr("height", height + 2*y_offset)
+            .append("g")
+            .attr("transform", "translate(" + x_offset + "," + y_offset + ")");
+
+    var xAxis = d3.axisBottom(xScale)
+                  .tickFormat(d3.format("d"))
+                  .ticks(21);
+    var yAxis = d3.axisLeft(yScale)
+                  .ticks(8)
+                  .tickFormat(d3.formatPrefix(".1", 1e7));
+
+    // ズーム用の準備
+    var zoom = d3.zoom()
+                  .scaleExtent([1, 10])
+                  .translateExtent([[0, 0], [width, height]])
+                  .extent([[0, 0], [width, height]])
+                  .on("zoom", zoomed);
+        /*var rect = svg.append("rect")
+                       .attr("class", "zoom")
+                       .attr("width", width)
+                       .attr("height", height)
+                       .attr("transform", "translate(" + x_offset + "," + y_offset + ")")
+                       .call(zoom);*/
+
+// グラフ本体の描画 tooltipも
+    var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("display", "none");
+    var stream = svg.selectAll("path")
+        .data(seriesData)
+        .enter()
+        .append("path")
+        .attr("class", "streamgraph")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("stroke", "white")
+        .attr("stroke-width", 0.5)
+        .attr("d", area)
+        .attr("fill", function(d, i){
+          return KeyToColor[d.key];
+        })
+        .on("mouseover", function(d, i) {
+          var key_length = d.key.length;
+          div.transition()
+             .duration(100)
+             .style("display", "inline")
+             .style("opacity", .9)
+             .style("width", function(){ return key_length * 16 + 10 + "px"; });
+          div .html(d.key)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 30) + "px");
+          var key_buf = d.key;
+          d3.select(this).attr("fill", function(){ return d3.rgb(KeyToColor[key_buf]).darker(0.3); });
+        })
+        .on("mouseout", function(d, i) {
+          // removeTooltip(data);
+          div.transition()
+             .duration(100)
+             .style("display", "none");
+          var key_buf = d.key;
+          d3.select(this).attr("fill", function(){ return KeyToColor[key_buf]; });
+        })
+        .on("click", function(d, i){
+          var selectedItemData = createSelectedItemData(d);
+          showStreamGraph(selectedItemData);
+        })
+        .on("mousemove", function(d, i) {
+          // var aboutYear = Math.round(yearScale(d3.mouse(this)[0])) // -< 最もマウスカーソルから近い年号
+          // var x = xScale(aboutYear);
+          // var c1 = [x, 0];
+          // var c2 = [x, height];
+          /*d3.select("#graph").selectAll(".reference").remove();
+          var c1 = [d3.mouse(this)[0], 0];
+          var c2 = [d3.mouse(this)[0], height];
+          var linesource = [c1, c2];
+          var line = d3.line().x(function(d){ return d[0]; }).y(function(d){return d[1]; });
+
+          var path = svg.append("path")
+                        .attr("class", "reference")
+                        .attr("d", line(linesource))
+                        .attr("stroke", "grey")
+                        .attr("stroke-width", 2)
+                        .style("opacity", .6);*/
+          // moveTooltip(data);
+          /*div.style("left", (d3.event.pageX) + "px")
+             .style("top", (d3.event.pageY - 28) + "px");*/
+        });
+
+//グラフ中にメーカー名・ハード名表示
+    // var sales_max_year = {};
+    // var difference_max = {};
+    var difference_sum3_max = {};
+    var sales_sum3_max_year = {};
+    var fontScale;
+    var text = svg.selectAll("text")
+                  .data(seriesData)
+                  .enter()
+                  .append("text")
+                  .attr("class", "text")
+                  .attr("x", function(d, i){
+                    //（例えば今ハードを選択しているとすると）そのハードが最も売れた「連続する3年」を調べる
+                    difference_sum3_max[d.key] = 0;
+                    for(var j = 1; j < 20; j++) {
+                      var tmp_sum3 = d[j-1][1]-d[j-1][0] + d[j][1]-d[j][0] + d[j+1][1]-d[j+1][0];
+                      if(difference_sum3_max[d.key] < tmp_sum3) {
+                        sales_sum3_max_year[d.key] = j + 1996;
+                        difference_sum3_max[d.key] = tmp_sum3;
+                      }
+                    }
+                    return xScale(sales_sum3_max_year[d.key]) - 20;
+                  })
+                  .attr("y", function(d, i){
+                    // return  ( yScale(d[sales_sum3_max_year[d.key]-1996][0]) + yScale(d[sales_sum3_max_year[d.key]-1996][1]) ) / 2;
+                    return yScale( (d[sales_sum3_max_year[d.key]-1996][0] + d[sales_sum3_max_year[d.key]-1996][1]) / 2 );
+                  })
+                  .attr("font-family", "sans-serif")
+                  .attr("font-size", function(d, i){
+                    fontScale = d3.scaleSqrt()
+                                      .domain([0, maxorig(difference_sum3_max)])
+                                      .range([0, 1.5]);
+                    return fontScale(difference_sum3_max[d.key])+"em";
+                  })
+                  .attr("fill", "#424242")
+                  .text(function(d, i) {
+                    //if(difference_sum3_max[d.key] < 8000000) return "";
+                    if(difference_sum3_max[d.key] < (yScale.domain()[1]-yScale.domain()[0])/5) return "";
+                    else return d.key;
+                  });
+
+// キラーソフト表示
+    var rScale = d3.scaleSqrt().domain([killerBaseLine, d3.max(killersoftArray, function(d){return d.sales;})]).range([3, 12]);
+    var salesScale = d3.scaleLinear()
+                       .domain([killerBaseLine, d3.max(killersoftArray, function(d){return d.sales;})])
+                       .range([-3, 24]);
+    function position(p) {
+      p.attr("cx", function(d) {return xScale(d.year);});
+      p.attr("cy", function(d) {
+        if(selectedsort == "ハード") {
+          for(var j in seriesData) {
+            if(seriesData[j].key == d.hard) {
+              return yScale((seriesData[j][d.year-1996][0]+seriesData[j][d.year-1996][1]) / 2) + salesScale(d.sales);
+              break;
+            }
+          }
+        }
+        else { //メーカーを選択しているとき
+          for(var j in seriesData) {
+            if(seriesData[j].key == d.maker) {
+              return yScale((seriesData[j][d.year-1996][0]+seriesData[j][d.year-1996][1]) / 2) + 5;
+              break;
+            }
+          }
+        }
+      });
+      p.attr("r", function(d){ return rScale(d.sales); });
+    }
+    function order(a, b) {
+      return b.sales - a.sales;
+    }
+    var divKillerSoft = d3.select("body").append("div")
+                          .attr("class", "tooltip-killersoft")
+                          .style("display", "none");
+    var tooltipKiller_width = 200;
+    var tooltipKiller_height = 200;
+    var killersoft = svg.selectAll("circle")
+                        .data(killersoftArray)
+                        .enter()
+                        .append("circle")
+                        .attr("class", "killer-circle")
+                        .attr("id", "clickable")
+                        .attr("fill", "white")
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 0.8)
+                        .style("opacity", 0.5)
+                        .on("mouseover", function(d, i) {
+                          divKillerSoft.transition()
+                                       .duration(200)
+                                       .style("opacity", .9)
+                                       .style("display", "inline")
+                                       .style("width", tooltipKiller_width)
+                                       .style("height", tooltipKiller_height)
+                                       .style("left", ((d3.event.pageX) - 45) + "px")
+                                       .style("top", ((d3.event.pageY) + 30) + "px");
+                          divKillerSoft.html(d.title+"<br>売上 : "+d.sales+"本");
+
+                          d3.select(this)
+                            .style("opacity", 0.9)
+                            .attr("fill", "grey");
+                        })
+                        .on("mouseout", function(d, i) {
+                          divKillerSoft.transition()
+                                         .duration(200)
+                                         .style("display", "none");
+                          d3.select(this)
+                            .style("opacity", 0.5)
+                            .attr("fill", "white");
+                        })
+                        .on("click", function(d, i) {
+                          hardOfSelectedSoft = HardToHard[d.hard];
+                          callJSONP(createURL(d));
+                        })
+                        .call(position)
+                        .sort(order);
+
+//x軸描画
+    var gX = svg.append("g")
+       .attr("class", "xaxis")
+       .attr("fill", "none")
+       .attr("stroke", "black")
+       .attr("shape-rendering", "crispEdges")
+       .attr("transform", "translate(0, " + height + ")")
+       .call(xAxis);
+
+//y軸描画
+    var gY = svg.append("g")
+       .attr("class", "yaxis")
+       .attr("fill", "none")
+       .attr("stroke", "black")
+       .attr("shape-rendering", "crispEdges")
+       .call(yAxis);
+//軸名描画
+    var gAxis = svg.selectAll("g").selectAll("text")
+       .attr("fill", "black")
+       .attr("stroke", "none");
+
+    var gxAxis = svg.append("text")
+       .attr("class", "xLabel")
+       .attr("text-anchor", "end")
+       .attr("x", width + 15)
+       .attr("y", height + 35)
+        .attr("font-size", "1.3em")
+       .text("Year");
+
+    var gyAxis = svg.append("text")
+       .attr("class", "yLabel")
+       .attr("text-anchor", "end")
+       .attr("y", 25)
+       .attr("x", 0)
+       .attr("transform", "rotate(-90)")
+       .attr("font-size", "1.3em")
+       .text("Sales Quantity")
+
+    piechart(dataset); //ストリームグラフをユニークモードにしたときに円グラフが消えないようにするため再描画
+
+// ズーム
+    // zoom.scaleBy(rect, 2);
+    // zoom.translateBy(rect, width, height);
+    //グラフサイズに合うように切り取るためのクリップ
+    svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+   .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+    /*svg.append("rect")
+    .attr("class", "pane")
+    .attr("width", width)
+    .attr("height", height)
+    .call(zoom);*/
+    svg.call(zoom);
+    function zoomed() {
+      // console.time("zoom");
+      var t = d3.event.transform;
+      // console.log(t.rescaleY(yScale0).domain());
+      // console.log(t.rescaleX(xScale0).domain());
+      yScale.domain(t.rescaleY(yScale0).domain());
+      xScale.domain(t.rescaleX(xScale0).domain());
+            // console.log(xScale.domain());
+      svg.selectAll(".streamgraph")
+              .attr("d", area);
+      svg.selectAll(".text")
+              .attr("x", function(d, i){
+                return xScale(sales_sum3_max_year[d.key]) - 20;
+              })
+              .attr("y", function(d, i){
+                return yScale( (d[sales_sum3_max_year[d.key]-1996][0] + d[sales_sum3_max_year[d.key]-1996][1]) / 2 );
+              })
+              .attr("font-size", function(d, i){
+                return fontScale(difference_sum3_max[d.key])+"em";
+              })
+              .text(function(d, i) {
+                //if(difference_sum3_max[d.key] < 8000000) return "";
+                if(difference_sum3_max[d.key] < (yScale.domain()[1]-yScale.domain()[0])/5) return "";
+                else return d.key;
+              });
+      svg.selectAll(".killer-circle")
+        .call(position);
+
+    /*function() {
+        console.log(d3.event.transform);
+        return d3.event.transform;
+      });*/
+
+      // text.attr("transform", d3.event.transform);
+      // gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
+      // gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
+      xAxis.ticks(Math.floor(xScale.domain()[1]) - Math.ceil(xScale.domain()[0]) + 1); // 横軸の目盛りをちょうど年数分表示するようにする
+      svg.select(".yaxis").call(yAxis);
+            // console.timeEnd("zoom");
+      svg.select(".xaxis").call(xAxis);
+    }
+  }
+
+  function createSelectedItemData(selectedData) {
+    var key = selectedData.key;
+    var selectedDataArray = [];
+
+    dataset.forEach(function(d, i) {
+      if(d.maker == key || d.hard == key) {
+        selectedDataArray.push(d);
+      }
+    });
+    console.log(selectedDataArray);
+
+    return selectedDataArray;
+  }
+
+  if(selectedsort == "ハード") {
+    drawStream(HardSeries);
+  }
+  else if(selectedsort == "メーカー") {
+    drawStream(MakerSeries);
+  }
+  else if(selectedsort == "ジャンル") {
+    //あとで書く
+  }
+  d3.select("#graph").select(".xaxis").selectAll("g").attr("id","clickable").on("click",yearselect);
+  function yearselect(d,i){
+    var yearoption=document.getElementById("year").getElementsByTagName('option');
+    //console.log(yearoption);
+    for(var i=0;i<yearoption.length;i++){
+      if(yearoption[i].value==d){
+        yearoption[i].selected=true;
+        // console.log(selectedyear);
+        // console.log(document.form1.year.value);
+        piechart(dataset);
+
+        // console.log(selectedyear);
+        // console.log(document.form1.year.value);
+        break;
+      }
+    }
+  }
+}
+
+function createKeyToColor() {
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  var makers = [];
+  var hards = [];
+  dataset.forEach( function(d, i) {
+    if(makers.indexOf(d.maker) < 0) makers.push(d.maker);
+    if(hards.indexOf(d.hard) < 0) hards.push(d.hard);
+  });
+  makers.forEach(function(d, i) {
+    KeyToColor[d] = color(i);
+  });
+  hards.forEach(function(d, i) {
+    KeyToColor[d] = color(i);
+  });
+}
+
+/*  for(var year = 1996; year <= 2016; year++) {
+    allsales_per_year[year] = 0;
+  }
+  dataset.forEach(function(d, i) {
+    allsales_per_year[d.year] += Number(d.sales);
+  });
+  console.log(allsales_per_year);
+}*/
+
+function maxorig (array) { //連想配列の最大要素を返す
+  var max = 0;
+  for(var i in array) {
+    if(max < array[i]) max = array[i];
+  }
+  return max;
+}
+
+function piechart(){
+
+
+  d3.select("#graph").selectAll("#piechart").remove();//以前のグラフ消去
+  var selectedyear=document.form1.year.value;
+  var selectedsort=document.form1.sort.value;
+  if(selectedyear==0) return;//全ての年なら終了
+
+  function history(year){//円グラフ用年表表示
+    d3.select(".underpiechart").selectAll(".piecharthistory").style("visibility","hidden");
+    d3.select(".underpiechart").select("#his"+year).style("visibility","visible");
+  }
+
+  history(selectedyear);
+
+  // d3.select(".underpiechart").select("#his1996").style("visibility","visible");
+
+  var width=800;
+  var height=530;
+  var radius=200;
+  // var width = 800;
+  // var height = 300;
+  // var radius=100;
+  var uniqueLabelArray={"hard":[],"maker":[]};//ここにハードとメーカーが一種類ずつ入る。
+  dataset.forEach(function(d,i){
+    if(uniqueLabelArray.hard.indexOf(d.hard)<0) uniqueLabelArray.hard.push(d.hard);
+    if(uniqueLabelArray.maker.indexOf(d.maker)<0) uniqueLabelArray.maker.push(d.maker);
+
+  });
+  //console.log(uniqueLabelArray);
+  var hardsalesyear = new Array(21);//年毎,0が1996に対応
+  var makersalesyear = new Array(21);
+  var yearsalessum = new Array(21);
+  for(var i=0;i<21;i++){
+    var hardsales=new Array(uniqueLabelArray.hard.length);
+    var makersales=new Array(uniqueLabelArray.maker.length);
+    hardsalesyear[i]=hardsales;
+    makersalesyear[i]=makersales;
+    for(var j=0;j<uniqueLabelArray.hard.length;j++){
+      hardsalesyear[i][j]=0;//1996+i年のハードjの売り上げ
+    }
+    for(var j=0;j<uniqueLabelArray.maker.length;j++){
+      makersalesyear[i][j]=0;//メーカー別売り上げ
+    }
+  }
+
+
+  dataset.forEach(function(d,i){//売り上げを入れる
+    for(var j=0;j<uniqueLabelArray.hard.length;j++){
+      if(uniqueLabelArray.hard[j]==d.hard){
+        hardsalesyear[d.year-1996][j]+=Number(d.sales);
+      }
+    }
+    for(var j=0;j<uniqueLabelArray.maker.length;j++){
+      if(uniqueLabelArray.maker[j]==d.maker){
+        makersalesyear[d.year-1996][j]+=Number(d.sales);
+      }
+    }
+  });
+  //console.log(d3.sum(hardsalesyear[selectedyear-1996]));
+
+  for(var i=0;i<21;i++){
+    yearsalessum[i]=d3.sum(hardsalesyear[i]);
+  }
+
+  //console.log(d3.max(yearsalessum));
+  var  pieradius=d3.scaleLinear()
+                .domain([d3.min(yearsalessum),d3.max(yearsalessum)])
+                .range([radius,radius]);
+
+  //console.log(hardsalesyear);
+  //console.log(makersalesyear);
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  var svg=d3.select("#graph")
+              .append("svg")
+              .attr("width",width)
+              .attr("height",height)
+              .attr("id","piechart")
+              //.attr("transform", "translate(" + 1000 + ", " + 0 + ")")
+              .append("g")
+              .attr("transform", "translate(" + radius*1.1 + ", " + radius*1.1 + ")");
+
+  var pie = d3.pie().value(function(d){ return d; });
+  var arc = d3.arc().innerRadius(pieradius(yearsalessum[selectedyear-1996])/3).outerRadius(pieradius(yearsalessum[selectedyear-1996]));
+
+  //console.log(selectedyear);
+  if(selectedsort=="ハード"){
+    drawpie(hardsalesyear);
+  }else if(selectedsort=="メーカー"){
+    drawpie(makersalesyear);
+  }
+
+
+
+  function drawpie(salesyear){//円グラフ表示
+    svg.selectAll("path")
+      .data(pie(salesyear[selectedyear-1996]))
+      .enter()
+      .append("path")
+      .attr("d", arc)
+      .attr("stroke", "white")
+      .attr("class","clickable")
+      .on("mouseover",pieEntered)
+      .on("mouseout",pieLeft)
+      .on("click",pieClicked)//クリックするとタイトルごとの円グラフ
+      .style("fill", function(d,i){
+        //return color(i);
+      //  console.log(KeyToColor,d);
+        if(selectedsort=="ハード")return KeyToColor[uniqueLabelArray.hard[i]];
+        else return KeyToColor[uniqueLabelArray.maker[i]];
+      });
+
+      svg.selectAll("text")
+    .data(pie(salesyear[selectedyear-1996]))
+    .enter()
+    .append("text")
+    .attr("text-anchor","middle")
+    .attr("transform", function(d){
+      return "translate(" + arc.centroid(d) + ")";
+    })
+    .text(function(d,i){
+      //console.log(d);
+
+      if(d.data>yearsalessum[selectedyear-1996]/20){
+        if(selectedsort=="ハード"){
+          return uniqueLabelArray.hard[i];
+        }else if(selectedsort=="メーカー"){
+          return uniqueLabelArray.maker[i];
+        }
+      }else{
+        return "";
+      }
+    })
+    .attr("dx", "-5");
+
+    svg.append("text")
+  .text(selectedyear+"年")
+  .attr("dy", "-5")
+  .attr("dx", "-20");
+
+  svg.append("text")
+    .text(yearsalessum[selectedyear-1996].toString().slice(0,-4)+"万"+yearsalessum[selectedyear-1996].toString().slice(-4)+"本")
+    .attr("dy",15)
+    .attr("dx","0")
+    .attr("text-anchor","middle");
+  }
+
+  var mouseovertext =svg.append("text").attr("x",pieradius(yearsalessum[selectedyear-1996])*1.1);
+  var url1st =svg.append("a").attr("target","_blank");
+  var mouseoverranking1st=url1st.append("text").attr("x",-pieradius(yearsalessum[selectedyear-1996])).attr("y",pieradius(yearsalessum[selectedyear-1996])*1.1+25).attr("class","linked");
+  var url2nd = svg.append("a").attr("target","_blank");
+  var mouseoverranking2nd=url2nd.append("text").attr("x",-pieradius(yearsalessum[selectedyear-1996])).attr("y",pieradius(yearsalessum[selectedyear-1996])*1.1+50).attr("class","linked");
+  var url3rd=svg.append("a").attr("target","_blank");
+  var mouseoverranking3rd=url3rd.append("text").attr("x",-pieradius(yearsalessum[selectedyear-1996])).attr("y",pieradius(yearsalessum[selectedyear-1996])*1.1+75).attr("class","linked");
+
+
+  var allrank=ranking(selectedyear,0,0);
+  var allurl=rankingurl(selectedyear,0,0);
+  var allrankhard=rankingforhard(selectedyear,0,0);
+  var allforrakuten={
+    title: allrank[0]
+  };
+  var allforrakuten2={
+    title: allrank[1]
+  };
+  var allforrakuten3={
+    title: allrank[2]
+  };
+  // hardOfSelectedSoft = HardToHard[allrankhard[0]];
+  // callJSONP(createURL(allforrakuten));
+  //console.log(allurl);
+  mouseoverranking1st.text("１位：　"+allrank[0]).on("mouseover",function(){
+    hardOfSelectedSoft = HardToHard[allrankhard[0]];
+
+    callJSONP(createURL(allforrakuten));
+
+  });
+  url1st.attr("xlink:href",allurl[0]);
+  mouseoverranking2nd.text("２位：　"+allrank[1]).on("mouseover",function(){
+    hardOfSelectedSoft = HardToHard[allrankhard[1]];
+    callJSONP(createURL(allforrakuten2));
+  });
+  url2nd.attr("xlink:href",allurl[1]);
+  mouseoverranking3rd.text("３位：　"+allrank[2]).on("mouseover",function(){
+    hardOfSelectedSoft = HardToHard[allrankhard[2]];
+    callJSONP(createURL(allforrakuten3));
+  });
+  url3rd.attr("xlink:href",allurl[2]);
+
+  function pieEntered(d,i){//円グラフにマウスオーバーしたとき
+    if(selectedsort=="ハード"){
+      d3.select(this).style("fill", function(){ return d3.rgb(KeyToColor[uniqueLabelArray.hard[i]]).darker(0.3); });
+    }else if(selectedsort=="メーカー"){
+      d3.select(this).style("fill", function(){ return d3.rgb(KeyToColor[uniqueLabelArray.maker[i]]).darker(0.3); });
+    }
+    //console.log(d3.select(this));
+    var hoveredarc = d3.arc().innerRadius(pieradius(yearsalessum[selectedyear-1996])/3*1.1).outerRadius(pieradius(yearsalessum[selectedyear-1996])*1.1);
+    d3.select("#piechart").selectAll("path").attr("d",arc);
+    d3.select(this).attr("d",hoveredarc);
+
+
+      if(selectedsort=="ハード"){
+        mouseovertext.text(uniqueLabelArray.hard[i]+": "+hardsalesyear[selectedyear-1996][i].toString().slice(0,-4)+"万"+hardsalesyear[selectedyear-1996][i].toString().slice(-4)+"本");
+        var rank=ranking(selectedyear,selectedsort,i);
+        var rankurl=rankingurl(selectedyear,selectedsort,i);
+        var rankhard=rankingforhard(selectedyear,selectedsort,i);
+        var forrakuten={
+          title: rank[0]
+        };
+        var forrakuten2={
+          title: rank[1]
+        };
+        var forrakuten3={
+          title: rank[2]
+        };
+        // hardOfSelectedSoft = HardToHard[rankhard[0]];
+        // callJSONP(createURL(forrakuten));
+        //console.log(rankurl);
+        //ranking(selectedyear,selectedsort,i);
+        //mouseoverranking.text("１位：　"+rank[0]+"　２位：　"+rank[1]+"　３位："+rank[2]);
+        mouseoverranking1st.text("１位：　"+rank[0]).on("mouseover",function(){
+          hardOfSelectedSoft = HardToHard[rankhard[0]];
+          callJSONP(createURL(forrakuten));
+        });
+        url1st.attr("xlink:href",rankurl[0]);
+        if(typeof rank[1]!=="undefined"){
+          mouseoverranking2nd.text("２位：　"+rank[1]).on("mouseover",function(){
+            hardOfSelectedSoft = HardToHard[rankhard[1]];
+            callJSONP(createURL(forrakuten2));
+          });
+          url2nd.attr("xlink:href",rankurl[1]);
+        }else{
+          mouseoverranking2nd.text("");
+        }
+        if(typeof rank[2]!=="undefined"){
+          mouseoverranking3rd.text("３位：　"+rank[2]).on("mouseover",function(){
+            hardOfSelectedSoft = HardToHard[rankhard[2]];
+            callJSONP(createURL(forrakuten3));
+          });
+          url3rd.attr("xlink:href",rankurl[2]);
+        }else{
+          mouseoverranking3rd.text("");
+        }
+      }else if(selectedsort=="メーカー"){
+        mouseovertext.text(uniqueLabelArray.maker[i]);
+        var rank=ranking(selectedyear,selectedsort,i);
+        var rankurl=rankingurl(selectedyear,selectedsort,i);
+        var rankhard=rankingforhard(selectedyear,selectedsort,i);
+        var forrakuten={
+          title: rank[0]
+        };
+        var forrakuten2={
+          title: rank[1]
+        };
+        var forrakuten3={
+          title: rank[2]
+        };
+        // hardOfSelectedSoft = HardToHard[rankhard[0]];
+        // callJSONP(createURL(forrakuten));
+         //console.log(rankurl);
+        // ranking(selectedyear,selectedsort,i);
+        //mouseoverranking.text("１位：　"+rank[0]+"　２位：　"+rank[1]+"　３位："+rank[2]);
+        mouseoverranking1st.text("１位：　"+rank[0]).on("mouseover",function(){
+          hardOfSelectedSoft = HardToHard[rankhard[0]];
+          callJSONP(createURL(forrakuten));
+        });
+        url1st.attr("xlink:href",rankurl[0]);
+        if(typeof rank[1]!=="undefined"){
+          mouseoverranking2nd.text("２位：　"+rank[1]).on("mouseover",function(){
+            hardOfSelectedSoft = HardToHard[rankhard[1]];
+            callJSONP(createURL(forrakuten2));
+          });
+          url2nd.attr("xlink:href",rankurl[1]);
+        }
+        if(typeof rank[2]!=="undefined"){
+          mouseoverranking3rd.text("３位：　"+rank[2]).on("mouseover",function(){
+            hardOfSelectedSoft = HardToHard[rankhard[2]];
+            callJSONP(createURL(forrakuten3));
+          });
+          url3rd.attr("xlink:href",rankurl[2]);
+        }
+      }else{
+        mouseovertext.text("");
+        mouseoverranking1st.text("");
+        mouseoverranking2nd.text("");
+        mouseoverranking3rd.text("");
+      }
+
+
+
+
+  }
+
+
+
+  function rankingurl(year,sort,number){
+    // console.log(year,sort,uniqueLabelArray.hard[number]);
+    var rankarray=new Array(3);
+    var j=0;
+    dataset.forEach(function(d,i){
+      if(sort=="ハード"){
+
+          if(d.year>year||j>2)return rankarray;
+          if(d.hard==uniqueLabelArray.hard[number]&&d.year==year){
+            rankarray[j]=d.url;
+            //console.log(rankarray);
+            j++;
+          }
+
+        //if(d.hard==uniqueLabelArray.hard[number]&&d.year==year)console.log(d);
+      }else if(sort=="メーカー"){
+
+          if(d.year>year||j>2)return rankarray;
+          if(d.maker==uniqueLabelArray.maker[number]&&d.year==year){
+            rankarray[j]=d.url;
+            j++;
+          }
+
+        //if(d.maker==uniqueLabelArray.maker[number]&&d.year==year)console.log(d);
+      }else{
+        if(d.year>year||j>2)return rankarray;
+        if(d.year==year){
+          rankarray[j]=d.url;
+          j++;
+
+        }
+      }
+    });
+    return rankarray;
+  }
+
+  function ranking(year,sort,number){
+    // console.log(year,sort,uniqueLabelArray.hard[number]);
+    var rankarray=new Array(3);
+    var j=0;
+    dataset.forEach(function(d,i){
+      if(sort=="ハード"){
+
+          if(d.year>year||j>2)return rankarray;
+          if(d.hard==uniqueLabelArray.hard[number]&&d.year==year){
+            rankarray[j]=d.title;
+            //console.log(rankarray);
+            j++;
+          }
+
+        //if(d.hard==uniqueLabelArray.hard[number]&&d.year==year)console.log(d);
+      }else if(sort=="メーカー"){
+
+          if(d.year>year||j>2)return rankarray;
+          if(d.maker==uniqueLabelArray.maker[number]&&d.year==year){
+            rankarray[j]=d.title;
+            j++;
+          }
+
+        //if(d.maker==uniqueLabelArray.maker[number]&&d.year==year)console.log(d);
+      }else{
+        if(d.year>year||j>2)return rankarray;
+        if(d.year==year){
+          rankarray[j]=d.title;
+          //console.log(rankarray);
+          j++;
+        }
+      }
+    });
+    return rankarray;
+  }
+
+  function rankingforhard(year,sort,number){//3位までのソフトのハード
+    // console.log(year,sort,uniqueLabelArray.hard[number]);
+    var rankarray=new Array(3);
+    var j=0;
+    dataset.forEach(function(d,i){
+      if(sort=="ハード"){
+
+          if(d.year>year||j>2)return rankarray;
+          if(d.hard==uniqueLabelArray.hard[number]&&d.year==year){
+            rankarray[j]=d.hard;
+            //console.log(rankarray);
+            j++;
+          }
+
+        //if(d.hard==uniqueLabelArray.hard[number]&&d.year==year)console.log(d);
+      }else if(sort=="メーカー"){
+
+          if(d.year>year||j>2)return rankarray;
+          if(d.maker==uniqueLabelArray.maker[number]&&d.year==year){
+            rankarray[j]=d.hard;
+            j++;
+          }
+
+        //if(d.maker==uniqueLabelArray.maker[number]&&d.year==year)console.log(d);
+      }else{
+        if(d.year>year||j>2)return rankarray;
+        if(d.year==year){
+          rankarray[j]=d.hard;
+          //console.log(rankarray);
+          j++;
+        }
+      }
+    });
+    return rankarray;
+  }
+
+  function pieLeft(d,i){
+    if(selectedsort=="ハード"){
+      d3.select(this).style("fill", function(){ return d3.rgb(KeyToColor[uniqueLabelArray.hard[i]]); });
+    }else if(selectedsort=="メーカー"){
+      d3.select(this).style("fill", function(){ return d3.rgb(KeyToColor[uniqueLabelArray.maker[i]]); });
+    }
+    //var hoveredarc = d3.arc().innerRadius(pieradius(yearsalessum[selectedyear-1996])/3*1.1).outerRadius(pieradius(yearsalessum[selectedyear-1996])*1.1);
+    //d3.select(this).attr("d",arc);
+    //mouseovertext.text("");
+    //mouseoverranking.text("");
+  }
+
+  function pieClicked(d,i){//タイトルごとの円グラフ描画
+    var singlerank=singleranking(selectedyear,selectedsort,i);
+    var titlesales=new Array();
+    // var radius=200;
+    for (var j=0;j<singlerank.length;j++){
+      titlesales[j]=singlerank[j].sales;
+    }
+    //console.log(titlesales);
+    //d3.select("#graph").selectAll("svg").remove();//以前のグラフ消去,これはやるべきかどうか
+    d3.select("#graph").selectAll("#piechart").remove();
+    var svg=d3.select("#graph")
+                .append("svg")
+                .attr("width",width)
+                //.attr("width",2000)
+                .attr("height",height)
+                .attr("id","piechart")
+                .append("g")
+                .attr("transform", "translate(" + radius*1.1 + ", " + radius*1.1 + ")");
+                //.attr("transform", "translate(" + 1290 + ", " + 200 + ")");
+
+    var pie = d3.pie().value(function(d){ return d; });
+    var arc = d3.arc().innerRadius(radius/3).outerRadius(radius);
+
+    svg.selectAll("path")
+      .data(pie(titlesales))
+      .enter()
+      .append("a")
+      .attr("class","linkpie")
+      .attr("target","_blank")
+      .append("path")
+      .attr("d", arc)
+      .attr("stroke", "white")
+      .on("mouseover",pieEntered2)
+      .on("mouseout",pieLeft2)
+      //.on("click",pieClicked)
+      .style("fill", function(d,i){
+        return color(i);
+      });
+
+      svg.append("text")//中央に表示
+    .text(selectedyear+"年")
+    .attr("dy", "5")
+    .attr("dx", "0")
+    .attr("text-anchor","middle");
+    svg.append("text")
+        .text(d3.sum(titlesales).toString().slice(0,-4)+"万"+d3.sum(titlesales).toString().slice(-4)+"本")
+        .attr("dy","25")
+        .attr("dx","0")
+        .attr("text-anchor","middle");
+
+    if(selectedsort=="ハード"){//中央に表示
+      svg.append("text")
+    .text(singlerank[0].hard)
+    .attr("dy", "-15")
+    .attr("dx", "0")
+    .attr("text-anchor","middle");
+  }else if(selectedsort=="メーカー"){
+    svg.append("text")
+  .text(singlerank[0].maker)
+  .attr("dy", "-10")
+  .attr("dx", "0")
+  .attr("text-anchor","middle");
+  }
+
+  var goback=svg.append("text")
+    .text("←")
+    .attr("class","clickable")
+    .attr("dy",radius*1.1+15)
+    .attr("dx",-20)
+    .attr("font-size","30px")
+    .on("mouseover",gobackenter)
+    .on("mouseout",gobackout)
+    .on("click",piechart);
+
+    function gobackenter(){
+      goback.attr("fill","red");
+    }
+
+    function gobackout(){
+      goback.attr("fill","black");
+    }
+
+    //   svg.selectAll("text")
+    // .data(pie(titlesales))
+    // .enter()
+    // .append("text")
+    // .attr("transform", function(d){
+    //   return "translate(" + arc.centroid(d) + ")";
+    // })
+    // .text(function(d,i){
+    //   console.log(d);
+    //   return singlerank[i].title;
+    // })
+    // .attr("dx", "-5");
+    var url2 = svg.append("a").attr("target","_blank");
+    var mouseovertext2 =url2.append("text").attr("text-anchor","middle").attr("y",radius*1.1+35).attr("class","linked2").attr("fill","red");
+    var mouseovertext2sales = svg.append("text").attr("text-anchor","middle").attr("y",radius*1.1+55);
+    function pieEntered2(d,i){//タイトル表示
+      //console.log(d);
+
+      mouseovertext2.attr("fill","red");
+      // hardOfSelectedSoft = HardToHard[singlerank[i].hard];
+      // callJSONP(createURL(singlerank[i]));
+      if(selectedsort=="ハード"){
+        d3.select(this).style("fill", function(){ return d3.rgb(color(i)).darker(0.3); });
+      }else if(selectedsort=="メーカー"){
+        d3.select(this).style("fill", function(){ return d3.rgb(color(i)).darker(0.3); });
+      }
+      var hoveredarc = d3.arc().innerRadius(pieradius(yearsalessum[selectedyear-1996])/3*1.1).outerRadius(pieradius(yearsalessum[selectedyear-1996])*1.1);
+      d3.select("#piechart").selectAll("path").attr("d",arc);
+      d3.select(this).attr("d",hoveredarc);
+      //console.log(singlerank);
+      mouseovertext2.text(singlerank[i].title).on("mouseover",function(){
+        hardOfSelectedSoft = HardToHard[singlerank[i].hard];
+        callJSONP(createURL(singlerank[i]));
+      });
+      mouseovertext2.style.color="#ff0000";
+      url2.attr("xlink:href",singlerank[i].url);
+      mouseovertext2sales.text(singlerank[i].sales.slice(0,-4)+"万"+singlerank[i].sales.slice(-4)+"本");
+      d3.selectAll(".linkpie").attr("xlink:href",singlerank[i].url);
+    }
+
+    function pieLeft2(d,i){
+      mouseovertext2.attr("fill","blue");
+      if(selectedsort=="ハード"){
+        d3.select(this).style("fill", function(){ return d3.rgb(color(i)); });
+      }else if(selectedsort=="メーカー"){
+        d3.select(this).style("fill", function(){ return d3.rgb(color(i)); });
+      }
+      //d3.select(this).attr("d",arc);
+
+
+    }
+
+    function pieClicked2(d,i){
+      // d3.selectAll(".linkpie").attr("xlink:href",singlerank[i].url);
+    }
+
+
+  }
+  function singleranking(year,sort,number){//ひとつのハードもしくはメーカーのランキングを入れた配列を返す
+    var singlerank=new Array();
+    var j=0;
+    dataset.forEach(function(d,i){
+        if(sort=="ハード"){
+          if(d.hard==uniqueLabelArray.hard[number]&&d.year==year){
+            singlerank[j]=d;
+            j++;
+          }
+        }else if(sort=="メーカー"){
+          if(d.maker==uniqueLabelArray.maker[number]&&d.year==year){
+            singlerank[j]=d;
+            j++;
+          }
+        }
+    });
+    return singlerank;
+  }
+  // d3.select("#graph").select(".xaxis").selectAll("g").on("click",yearselect);
+  // function yearselect(d,i){
+  //   var yearoption=document.getElementById("year").getElementsByTagName('option');
+  //   console.log(yearoption);
+  //   for(var i=0;i<yearoption.length;i++){
+  //     if(yearoption[i].value==d){
+  //       yearoption[i].selected=true;
+  //       break;
+  //     }
+  //   }
+  // }
+
+
+}
+    </script>
+    <div class="underpiechart">
+      <div class="piecharthistory" id="his1996" >
+        1996年2月　ポケットモンスター 赤・緑 発売<br>
+        1996年6月　NINTENDO64発売<br>
+        1996年10月　ポケットモンスター 青 発売
+      </div>
+      <div class="piecharthistory" id="his1997" >
+      </div>
+      <div class="piecharthistory" id="his1998" >
+        1998年9月　ポケットモンスター ピカチュウ 発売<br>
+        1998年10月　ゲームボーイカラー発売<br>
+        1998年11月　ドリームキャスト発売
+      </div>
+      <div class="piecharthistory" id="his1999" >
+        1999年3月　ワンダースワン発売
+      </div>
+      <div class="piecharthistory" id="his2000" >
+        2000年3月　プレイステーション２発売
+      </div>
+      <div class="piecharthistory" id="his2001" >
+        2001年3月　ゲームボーイアドバンス発売<br>
+        2001年9月　ゲームキューブ発売
+      </div>
+      <div class="piecharthistory" id="his2002" >
+        2002年2月　Xbox発売
+      </div>
+      <div class="piecharthistory" id="his2003" >
+        2003年2月　ゲームボーイアドバンスSP発売
+      </div>
+      <div class="piecharthistory" id="his2004" >
+        2004年12月　ニンテンドーDS発売<br>
+        2004年12月　PSP発売
+      </div>
+      <div class="piecharthistory" id="his2005" >
+        2005年12月　Xbox360発売
+      </div>
+      <div class="piecharthistory" id="his2006" >
+        2006年3月　ニンテンドーDS lite発売<br>
+        2006年11月　プレイステーション3発売<br>
+        2006年12月　Wii発売
+      </div>
+      <div class="piecharthistory" id="his2007" >
+        2007年9月　PSP2000発売
+      </div>
+      <div class="piecharthistory" id="his2008" >
+        2008年11月　DSi発売
+      </div>
+      <div class="piecharthistory" id="his2009" >
+        2009年11月　PSPGO発売<br>
+        2009年11月　ニンテンドーDSiLL発売
+      </div>
+      <div class="piecharthistory" id="his2010" >
+        2010年11月　kinect発売
+      </div>
+      <div class="piecharthistory" id="his2011" >
+        2011年2月　ニンテンドー3DS発売<br>
+        2011年12月　プレイステーションVITA発売
+      </div>
+      <div class="piecharthistory" id="his2012" >
+        2012年12月　WiiU発売
+      </div>
+      <div class="piecharthistory" id="his2013" >
+      </div>
+      <div class="piecharthistory" id="his2014" >
+        2014年2月　プレイステーション4発売<br>
+        2014年10月　NEWニンテンドー3DS発売
+      </div>
+      <div class="piecharthistory" id="his2015" >
+      </div>
+      <div class="piecharthistory" id="his2016" >
+        ※2016年8月14日までのデータです
+      </div>
+    </div>
+  </body>
+</html>
